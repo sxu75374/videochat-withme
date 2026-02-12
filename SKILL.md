@@ -4,8 +4,9 @@ description: |
   Real-time AI video chat that routes through your OpenClaw agent. Uses Groq Whisper (cloud STT),
   edge-tts (cloud TTS via Microsoft), and OpenClaw chatCompletions API for conversation. Your agent
   sees your camera, hears your voice, and responds with its own personality and memory.
-  Requires: GROQ_API_KEY for speech recognition, reads OpenClaw gateway token from ~/.openclaw/openclaw.json.
-  Data flows: audio → Groq cloud, TTS text → Microsoft cloud, camera frames → local OpenClaw gateway.
+  Requires: GROQ_API_KEY for speech recognition. Reads ~/.openclaw/openclaw.json for gateway port and auth token.
+  Data flows: audio → Groq cloud (STT), TTS text → Microsoft cloud (edge-tts), camera frames (base64) + text
+  → OpenClaw gateway → your configured LLM provider (may be cloud — frames leave the machine if using a cloud LLM).
   Installs a persistent launchd service (optional). Trigger phrases: "video chat", "voice call",
   "call me", "视频一下", "语音", "打电话给我", "我要和你视频", "videochat-withme".
 metadata:
@@ -13,7 +14,12 @@ metadata:
     "openclaw":
       {
         "emoji": "🎥",
-        "requires": { "bins": ["python3", "ffmpeg"], "env": ["GROQ_API_KEY"] },
+        "requires":
+          {
+            "bins": ["python3", "ffmpeg"],
+            "env": ["GROQ_API_KEY"],
+            "config": ["gateway.http"],
+          },
       },
   }
 ---

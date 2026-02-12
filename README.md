@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/demo-placeholder
 - **🔊 AI voice** — edge-tts for natural text-to-speech responses
 - **🧠 Full personality** — Routes through your OpenClaw agent (memory, personality, tools)
 - **📱 Mobile support** — HTTPS with self-signed certs, works on phone browsers
-- **🔒 Privacy-conscious** — No cloud recording or storage; audio is processed via Groq Whisper (cloud STT), TTS via Microsoft edge-tts (cloud); camera frames and conversation stay between your browser and local OpenClaw gateway
+- **🔒 Privacy-conscious** — No recordings stored; audio processed via Groq Whisper (cloud STT), TTS via Microsoft edge-tts (cloud). Camera frames sent to your OpenClaw gateway → your LLM provider (⚠️ frames may reach cloud if using a cloud LLM)
 
 ## 🏗️ Architecture
 
@@ -30,17 +30,19 @@ edge-tts (TTS) → 🔊 Audio playback
 |------|-------------|------|
 | 🎤 Audio recordings | `api.groq.com` (Groq Whisper) | ☁️ Cloud STT |
 | 🔊 Text for speech | Microsoft edge-tts service | ☁️ Cloud TTS |
-| 📷 Camera frames + text | `localhost` OpenClaw gateway | 🏠 Local |
-| 💬 Conversation | Your configured LLM (via gateway) | Depends on LLM provider |
+| 📷 Camera frames (base64) + text | `localhost` OpenClaw gateway → **your configured LLM** | ⚠️ Depends on LLM provider |
+| 💬 Conversation | Your configured LLM (via gateway) | ⚠️ Depends on LLM provider |
 
-**What is NOT sent to any cloud:**
-- No recordings are stored or logged
-- No video is uploaded — frames are processed locally via your gateway
-- No user data is persisted on any server
+> **⚠️ Important:** Camera frames are encoded as base64 and sent to your OpenClaw gateway's `/v1/chat/completions` endpoint. If your gateway forwards to a **cloud LLM** (e.g., Claude, GPT), those frames **will leave your machine**. If you want frames to stay local, configure your gateway to use a local/self-hosted model.
+
+**What is NOT stored:**
+- No recordings are saved to disk (beyond temporary `/tmp` files during processing)
+- No conversation data is persisted on any server
+- The API proxy is stateless
 
 **Credentials accessed:**
-- `GROQ_API_KEY` — for Whisper STT
-- OpenClaw gateway token (read from `~/.openclaw/openclaw.json`) — for chatCompletions API
+- `GROQ_API_KEY` — for Whisper STT (from env var or `~/.openclaw/secrets/groq_api_key.txt`)
+- OpenClaw gateway auth token — read from `~/.openclaw/openclaw.json` (required for chatCompletions API)
 
 ## 📋 Prerequisites
 
