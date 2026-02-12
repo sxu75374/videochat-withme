@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/demo-placeholder
 - **🔊 AI voice** — edge-tts for natural text-to-speech responses
 - **🧠 Full personality** — Routes through your OpenClaw agent (memory, personality, tools)
 - **📱 Mobile support** — HTTPS with self-signed certs, works on phone browsers
-- **🔒 Privacy** — Everything runs locally, no cloud recording
+- **🔒 Privacy-conscious** — No cloud recording or storage; audio is processed via Groq Whisper (cloud STT), TTS via Microsoft edge-tts (cloud); camera frames and conversation stay between your browser and local OpenClaw gateway
 
 ## 🏗️ Architecture
 
@@ -23,6 +23,24 @@ OpenClaw /v1/chat/completions → Your Agent (personality + memory)
     ↓
 edge-tts (TTS) → 🔊 Audio playback
 ```
+
+## 🔐 Data Flows & Privacy
+
+| Data | Destination | Type |
+|------|-------------|------|
+| 🎤 Audio recordings | `api.groq.com` (Groq Whisper) | ☁️ Cloud STT |
+| 🔊 Text for speech | Microsoft edge-tts service | ☁️ Cloud TTS |
+| 📷 Camera frames + text | `localhost` OpenClaw gateway | 🏠 Local |
+| 💬 Conversation | Your configured LLM (via gateway) | Depends on LLM provider |
+
+**What is NOT sent to any cloud:**
+- No recordings are stored or logged
+- No video is uploaded — frames are processed locally via your gateway
+- No user data is persisted on any server
+
+**Credentials accessed:**
+- `GROQ_API_KEY` — for Whisper STT
+- OpenClaw gateway token (read from `~/.openclaw/openclaw.json`) — for chatCompletions API
 
 ## 📋 Prerequisites
 

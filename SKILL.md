@@ -7,6 +7,18 @@ description: |
   chat with their AI agent, start a face-to-face conversation, or have a real-time voice call
   with their OpenClaw assistant. Trigger phrases: "video chat", "voice call", "call me",
   "视频一下", "语音", "打电话给我", "我要和你视频", "videochat-withme".
+env:
+  - GROQ_API_KEY: Groq API key for Whisper STT (required). Get free at https://console.groq.com/keys
+config_paths:
+  - ~/.openclaw/secrets/groq_api_key.txt: Groq API key file (alternative to env var)
+  - ~/.openclaw/openclaw.json: Read-only — extracts gateway auth token for chatCompletions API
+data_flows:
+  - "Audio recordings → api.groq.com (Groq Whisper STT, cloud)"
+  - "Text responses → Microsoft edge-tts service (TTS, cloud)"
+  - "Camera frames (base64) + text → localhost OpenClaw gateway (chatCompletions)"
+  - "All conversation data stays between your browser, local gateway, and declared cloud APIs"
+persistence:
+  - "launchd user agent: ~/Library/LaunchAgents/com.openclaw.videochat-withme.plist (optional, installed by setup.sh)"
 ---
 
 # videochat-withme
